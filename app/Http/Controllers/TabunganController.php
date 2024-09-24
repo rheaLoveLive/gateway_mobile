@@ -198,7 +198,7 @@ class TabunganController extends Controller
                 }
 
                 $rekening = DBF::table('mst_tab', 'dBaseDsn')
-                    ->select(['nama', 'no_rek'])
+                    ->select(['NAMA', 'NO_REK'])
                     ->where('no_rek', '=', $data['norek'])
                     ->get();
 
@@ -433,6 +433,7 @@ class TabunganController extends Controller
                 }
 
                 $history = DBF::table('trn_tab', 'dBaseDsn')
+                    // ->leftJoin('mst_tab as mt')
                     ->where('no_rek', '=', $data['norek'])
                     ->where('sandi', '=', $data['sandi'])
                     ->where('bukti_trx', '=', $data['buktitrx'])
