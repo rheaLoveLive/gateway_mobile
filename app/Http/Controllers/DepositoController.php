@@ -15,7 +15,7 @@ class DepositoController extends Controller
         $datetime = date("YmdHis");
 
         try {
-
+            
             $data = DBF::table('dmasd', 'dBaseDsn')
                 ->select(['*'])->get();
 

@@ -197,11 +197,6 @@ class TabunganController extends Controller
                     return response()->json(['status' => self::$status['BAD_REQUEST'], 'message' => 'INVALID BODY', "response_time" => $datetime], 400);
                 }
 
-                $path = storage_path('DBF/MST_TAB.DBF');
-                $conditions = [
-                    'no_rek' => ['==', $data['norek']],
-                ];
-
                 $rekening = DBF::table('mst_tab', 'dBaseDsn')
                     ->select(['nama', 'no_rek'])
                     ->where('no_rek', '=', $data['norek'])
@@ -267,12 +262,6 @@ class TabunganController extends Controller
                 if ($dataCount > $bodyCount || $dataCount < $bodyCount) {
                     return response()->json(['status' => self::$status['BAD_REQUEST'], 'message' => 'INVALID BODY', "response_time" => $datetime], 400);
                 }
-
-                $path1 = storage_path('DBF/MST_TAB.DBF');
-                $conditions1 = [
-                    'no_rek' => ['==', $data['norek']],
-                ];
-
 
                 $rekening = DBF::table('mst_tab', 'dBaseDsn')
                     ->where('no_rek', '=', $data['norek'])
