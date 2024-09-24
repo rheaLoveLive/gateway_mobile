@@ -30,6 +30,7 @@ class QueryBuilder
     protected $wheres = [];
     protected $limit = 0;
     protected $orderby = [];
+    protected $groupby = [];
 
     public function __construct($dbfTable, $dsn, $username = "", $password = "")
     {
@@ -124,6 +125,14 @@ class QueryBuilder
         return $this;
     }
 
+    public function groupBy(...$fields)
+    {
+        foreach ($fields as $field) {
+            $this->groupby[] = $field;
+            return $this;
+        }
+    }
+
     public function create($data = [])
     {
         $fields = implode(', ', array_keys($data));
@@ -132,7 +141,7 @@ class QueryBuilder
         foreach ($data as $val) {
             $type = gettype($val);
 
-            if ($type == "integer") {
+            if ($type == "integer" || $type == "double") {
                 $values[] = "$val";
             } elseif ($type == "string" && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $val) && !preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $val)) {
                 $values[] = "'$val'";
@@ -144,7 +153,7 @@ class QueryBuilder
             } elseif ($type == "string" && preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $val)) {
                 $values[] = "#$val#";
             } else {
-                $values[] = "";
+                $values[] = null;
             }
         }
 
@@ -158,6 +167,9 @@ class QueryBuilder
         $data = [];
 
         $query = "INSERT INTO $this->dbfTable ($fields) VALUES ($stringVal)";
+
+
+        // dd($query);
 
         if ($this->con) {
             $result = odbc_exec($this->con, $query);
@@ -183,7 +195,7 @@ class QueryBuilder
             $type = gettype($val);
 
             $values = "";
-            if ($type == "integer") {
+            if ($type == "integer" || $type == "double") {
                 $values = "$val";
             } elseif ($type == "string" && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $val)) {
                 $values = "'$val'";
@@ -195,12 +207,12 @@ class QueryBuilder
             } elseif ($type == "string" && preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $val)) {
                 $values = "#$val#";
             } else {
-                $values = "";
+                $values = null;
             }
 
-            $updatedField = "$key = $values";
+            $updatedField[] = "$key = $values";
         }
-
+        
         $query = "UPDATE $this->dbfTable SET " . implode(', ', $updatedField);
 
         if (!empty($this->wheres)) {
@@ -208,7 +220,7 @@ class QueryBuilder
         }
 
         if ($this->con) {
-            
+
             $result = odbc_exec($this->con, $query);
 
             if ($result) {
@@ -316,6 +328,10 @@ class QueryBuilder
             $query .= " ORDER BY " . implode(', ', $this->orderby);
         }
 
+        if (!empty($this->groupby)) {
+            $query .= ' GROUP BY ' . implode(', ', $this->groupby);
+        }
+
         return $query;
     }
 
@@ -325,6 +341,8 @@ class QueryBuilder
         $this->raw = null;
         $this->joins = [];
         $this->wheres = [];
+        $this->groupby = [];
+        $this->orderby = [];
         $this->limit = 0;
         $this->con = null;
     }

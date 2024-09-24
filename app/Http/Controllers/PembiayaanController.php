@@ -70,8 +70,8 @@ class PembiayaanController extends Controller
                     return response()->json([
                         'status' => self::$status['BAD_REQUEST'],
                         'message' => 'DATA TIDAK ADA',
+                        "response_time" => $datetime,
                         "data" => [],
-                        "response_time" => $datetime
                     ], 400);
                 }
             }
@@ -126,8 +126,8 @@ class PembiayaanController extends Controller
                     return response()->json([
                         'status' => self::$status['BAD_REQUEST'],
                         'message' => 'DATA TIDAK ADA',
+                        "response_time" => $datetime,
                         "data" => [],
-                        "response_time" => $datetime
                     ], 400);
                 }
             }

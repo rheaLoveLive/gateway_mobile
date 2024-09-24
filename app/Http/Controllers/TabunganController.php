@@ -102,8 +102,8 @@ class TabunganController extends Controller
                     return response()->json([
                         'status' => self::$status['BAD_REQUEST'],
                         'message' => 'DATA TIDAK ADA',
+                        "response_time" => $datetime,
                         "data" => [],
-                        "response_time" => $datetime
                     ], 400);
                 }
             }
@@ -277,62 +277,117 @@ class TabunganController extends Controller
 
 
                 // Mengambil data saldo pengirim dan tujuan
-                $recPengirim = DBF::table('MST_TAB', 'dBaseDsn')
+                $recPengirim = DBF::table('TRN_TAB', 'dBaseDsn')
+                    ->select([
+                        "SUM(IIF(D_K = 'K', JUMLAH, 0)) AS KREDIT",
+                        "SUM(IIF(D_K = 'D', JUMLAH, 0)) AS DEBET",
+                        "NO_REK"
+                    ])
                     ->where('no_rek', '=', $data['norek'])
+                    ->groupBy('no_rek')
                     ->first();
 
-                $recTujuan = DBF::table('MST_TAB', 'dBaseDsn')
+                $recTujuan = DBF::table('TRN_TAB', 'dBaseDsn')
+                    ->select([
+                        "SUM(IIF(D_K = 'K', JUMLAH, 0)) AS KREDIT",
+                        "SUM(IIF(D_K = 'D', JUMLAH, 0)) AS DEBET",
+                        "NO_REK"
+                    ])
                     ->where('no_rek', '=', $data['norektujuan'])
+                    ->groupBy('no_rek')
                     ->first();
 
-                // Mendapatkan saldo akhir
-                $saldoAkhirPengirim = isset($recPengirim['saldo_akhr']) ? $recPengirim['saldo_akhr'] : 0;
-                $saldoAkhirTujuan = isset($recTujuan['saldo_akhr']) ? $recTujuan['saldo_akhr'] : 0;
 
-                // Data yang akan diinsert
-                $arrData = [
-                    [
-                        'no_rek' => $data['norek'],
-                        "jumlah" => $data['jumlah'],
-                        "saldo" => $saldoAkhirPengirim,
-                        "oprt" => $data['oprt'],
-                        "bukti_trx" => $data['buktitrx'],
-                        "ao" => $data['ao'],
-                        "d_k" => 'D',
-                        "jns_simp" => $data['jnssimpanan'],
-                        "sandi" => $data['sandi'],
-                        "tgl_trx" => $data['tgltrx'],
-                        "jurnal" => $data['jurnal'],
-                        "tgl_tran" => $data['tgltran']
-                    ],
-                    [
-                        'no_rek' => $data['norektujuan'],
-                        "jumlah" => $data['jumlah'],
-                        "saldo" => $saldoAkhirTujuan,
-                        "oprt" => $data['oprt'],
-                        "bukti_trx" => $data['buktitrx'],
-                        "ao" => $data['ao'],
-                        "d_k" => 'K',
-                        "jns_simp" => $data['jnssimpanan'],
-                        "sandi" => $data['sandi'],
-                        "tgl_trx" => $data['tgltrx'],
-                        "jurnal" => $data['jurnal'],
-                        "tgl_tran" => $data['tgltran']
-                    ]
-                ];
+                $saldoAwalPengirim = 0;
+                $saldoAwalTujuan = 0;
+                if (!empty($recTujuan) && !empty($recPengirim)) {
+
+                    //mendapatkan saldo awal
+                    $saldoAwalPengirim = $recPengirim['KREDIT'] - $recPengirim['DEBET'];
+                    $saldoAwalTujuan = $recTujuan['KREDIT'] - $recTujuan['DEBET'];
+
+                    // Mendapatkan saldo akhir
+                    $saldoAkhirPengirim = $saldoAwalPengirim - $data['jumlah'];
+                    $saldoAkhirTujuan = $saldoAwalTujuan - $data['jumlah'];
+
+                    // dd($saldoAkhirTujuan);
+
+
+                    // Data yang akan diinsert
+                    $arrDataTRN = [
+                        [
+                            'no_rek' => $data['norek'],
+                            "jumlah" => $data['jumlah'],
+                            "saldo" => $saldoAkhirPengirim,
+                            "oprt" => $data['oprt'],
+                            "bukti_trx" => $data['buktitrx'],
+                            "ao" => $data['ao'],
+                            "d_k" => 'D',
+                            "jns_simp" => $data['jnssimpanan'],
+                            "sandi" => $data['sandi'],
+                            "tgl_trx" => $data['tgltrx'],
+                            "jurnal" => $data['jurnal'],
+                            "tgl_tran" => $data['tgltran']
+                        ],
+                        [
+                            'no_rek' => $data['norektujuan'],
+                            "jumlah" => $data['jumlah'],
+                            "saldo" => $saldoAkhirTujuan,
+                            "oprt" => $data['oprt'],
+                            "bukti_trx" => $data['buktitrx'],
+                            "ao" => $data['ao'],
+                            "d_k" => 'K',
+                            "jns_simp" => $data['jnssimpanan'],
+                            "sandi" => $data['sandi'],
+                            "tgl_trx" => $data['tgltrx'],
+                            "jurnal" => $data['jurnal'],
+                            "tgl_tran" => $data['tgltran']
+                        ]
+                    ];
+
+                    $arrDataMST = [
+                        [
+                            'no_rek' => $recPengirim['NO_REK'],
+                            'saldo_awal' => $saldoAwalPengirim,
+                            'saldo_akhr' => $saldoAkhirPengirim,
+                            'jumlah' => $saldoAkhirPengirim,
+                        ],
+                        [
+                            'no_rek' => $recTujuan['NO_REK'],
+                            'saldo_awal' => $saldoAwalTujuan,
+                            'saldo_akhr' => $saldoAkhirTujuan,
+                            'jumlah' => $saldoAkhirTujuan,
+                        ]
+                    ];
+
+                }
 
                 // Lakukan insert satu per satu menggunakan `DBF::table`
-                foreach ($arrData as $dataItem) {
+                foreach ($arrDataTRN as $dataItem) {
                     $create = DBF::table('TRN_TAB', 'dBaseDsn')->create($dataItem);
                 }
 
                 if ($create == "CREATED") {
-                    return response()->json([
-                        "status" => Controller::$status['SUKSES'],
-                        "message" => "SUCCESS",
-                        "response_time" => $datetime,
-                    ]);
 
+                    foreach ($arrDataMST as $dataItem) {
+                        $update = DBF::table('MST_TAB', 'dBaseDsn')
+                            ->where('no_rek', '=', $dataItem['no_rek'])
+                            ->update($dataItem);
+                    }
+
+                    if ($update == "UPDATED") {
+                        return response()->json([
+                            "status" => Controller::$status['SUKSES'],
+                            "message" => "SUCCESS",
+                            "response_time" => $datetime,
+                        ]);
+                    } else {
+                        return response()->json([
+                            'status' => self::$status['BAD_REQUEST'],
+                            'message' => 'GAGAL UPDATE DATA',
+                            "response_time" => $datetime
+                        ], 400);
+                    }
                 } else {
                     return response()->json([
                         'status' => self::$status['BAD_REQUEST'],
