@@ -144,7 +144,7 @@ class TabunganController extends Controller
                 }
 
                 $rekening = DBF::table('trn_tab', 'dBaseDsn')
-                    ->where('no_rek', '=', $data['norek'])
+                    ->where('no_agt', '=', $data['kodeanggota'])
                     ->get();
 
                 if (!empty($rekening)) {
