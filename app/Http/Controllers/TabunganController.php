@@ -440,8 +440,7 @@ class TabunganController extends Controller
                 $history = [];
 
                 foreach ($rek as $dt) {
-                    $history[$dt['NO_REK']] = DBF::table('trn_tab', 'dBaseDsn')
-                        // ->leftJoin('mst_tab as mt')
+                    $history[] = DBF::table('trn_tab', 'dBaseDsn')
                         ->where('no_rek', '=', $dt['NO_REK'])
                         ->where('sandi', '=', $data['sandi'])
                         ->where('bukti_trx', '=', $data['buktitrx'])
@@ -453,7 +452,7 @@ class TabunganController extends Controller
                         "status" => Controller::$status['SUKSES'],
                         "message" => "SUCCESS",
                         "response_time" => $datetime,
-                        "data" => array_values($history),
+                        "data" => array_merge(...$history),
                     ]);
 
                 } else {
