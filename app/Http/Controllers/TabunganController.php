@@ -420,7 +420,7 @@ class TabunganController extends Controller
 
             if ($decodedPayload['status'] == '00') {
                 $bodyValid = [
-                    "norek",
+                    "kodeanggota",
                     "sandi",
                     "buktitrx",
                 ];
@@ -432,12 +432,21 @@ class TabunganController extends Controller
                     return response()->json(['status' => self::$status['BAD_REQUEST'], 'message' => 'INVALID BODY', "response_time" => $datetime], 400);
                 }
 
-                $history = DBF::table('trn_tab', 'dBaseDsn')
-                    // ->leftJoin('mst_tab as mt')
-                    ->where('no_rek', '=', $data['norek'])
-                    ->where('sandi', '=', $data['sandi'])
-                    ->where('bukti_trx', '=', $data['buktitrx'])
+
+                $rek = DBF::table('mst_tab', 'dBaseDsn')
+                    ->where('no_agt', '=', $data['kodeanggota'])
                     ->get();
+
+                $history = [];
+
+                foreach ($rek as $dt) {
+                    $history[$dt['NO_REK']] = DBF::table('trn_tab', 'dBaseDsn')
+                        // ->leftJoin('mst_tab as mt')
+                        ->where('no_rek', '=', $dt['NO_REK'])
+                        ->where('sandi', '=', $data['sandi'])
+                        ->where('bukti_trx', '=', $data['buktitrx'])
+                        ->get();
+                }
 
                 if (!empty($history)) {
                     return response()->json([
