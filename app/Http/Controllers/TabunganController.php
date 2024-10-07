@@ -86,7 +86,7 @@ class TabunganController extends Controller
                 }
 
                 $rekening = DBF::table('mst_tab', 'dBaseDsn')
-                    ->where('no_rek', '=', $data['norek'])
+                    ->where('no_agt', '=', $data['kodeanggota'])
                     ->get();
 
                 if (!empty($rekening)) {
@@ -97,7 +97,6 @@ class TabunganController extends Controller
                         "response_time" => $datetime,
                         "data" => array_values($rekening),
                     ]);
-
                 } else {
                     return response()->json([
                         'status' => self::$status['BAD_REQUEST'],
@@ -107,9 +106,6 @@ class TabunganController extends Controller
                     ], 400);
                 }
             }
-
-
-
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => self::$status['BAD_REQUEST'],
@@ -154,7 +150,6 @@ class TabunganController extends Controller
                         "response_time" => $datetime,
                         "data" => array_values($rekening),
                     ]);
-
                 } else {
                     return response()->json([
                         'status' => self::$status['BAD_REQUEST'],
@@ -209,7 +204,6 @@ class TabunganController extends Controller
                         "response_time" => $datetime,
                         "data" => array_values($rekening),
                     ]);
-
                 } else {
                     return response()->json([
                         'status' => self::$status['BAD_REQUEST'],
@@ -359,7 +353,6 @@ class TabunganController extends Controller
                             'jumlah' => $saldoAkhirTujuan,
                         ]
                     ];
-
                 }
 
                 // Lakukan insert satu per satu menggunakan `DBF::table`
@@ -454,7 +447,6 @@ class TabunganController extends Controller
                         "response_time" => $datetime,
                         "data" => array_merge(...$history),
                     ]);
-
                 } else {
                     return response()->json([
                         'status' => self::$status['BAD_REQUEST'],
