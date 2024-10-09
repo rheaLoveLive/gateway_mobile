@@ -51,7 +51,7 @@ class QueryBuilder
         return $this;
     }
 
-    public function select($fields = "*")
+    public function select(...$fields)
     {
         if (is_array($fields)) {
             $this->selects = implode(', ', $fields);
@@ -212,7 +212,7 @@ class QueryBuilder
 
             $updatedField[] = "$key = $values";
         }
-        
+
         $query = "UPDATE $this->dbfTable SET " . implode(', ', $updatedField);
 
         if (!empty($this->wheres)) {
@@ -292,7 +292,6 @@ class QueryBuilder
         } else {
             return $data;
         }
-
     }
 
     public function first()
@@ -316,12 +315,20 @@ class QueryBuilder
             $query = $this->raw;
         }
 
-        if (!empty($this->wheres)) {
-            $query .= " WHERE " . implode(" AND ", $this->wheres);
-        }
-
         if (!empty($this->joins)) {
             $query .= " " . implode(', ', $this->joins);
+        }
+
+        // if (!empty($this->wheres)) {
+        //     $query .= " WHERE " . implode(" AND ", $this->wheres);
+        // }
+
+        if (!empty($this->wheres)) {
+            if (stripos($query, 'WHERE') !== false) {
+                $query .= " AND " . implode(" AND ", $this->wheres);
+            } else {
+                $query .= " WHERE " . implode(" AND ", $this->wheres);
+            }
         }
 
         if (!empty($this->orderby)) {
@@ -347,7 +354,3 @@ class QueryBuilder
         $this->con = null;
     }
 }
-
-
-
-

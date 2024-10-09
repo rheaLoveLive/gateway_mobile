@@ -28,6 +28,7 @@ Route::middleware(['check.token'])->group(function () {
     Route::post('anggota/getall', [AnggotaController::class, 'getAllAnggota']);
     Route::post('anggota/checkexist', [AnggotaController::class, 'checkAnggota']);
     Route::post('anggota/getascif', [AnggotaController::class, 'checkAsCif']);
+    Route::post('anggota/simpanan', [AnggotaController::class, 'simpanan']);
     // deposito
     Route::post('deposito/getall', [DepositoController::class, 'getAllDepo']);
     Route::post('deposito/data/rekening', [DepositoController::class, 'rekeningDepo']);
@@ -42,5 +43,5 @@ Route::middleware(['check.token'])->group(function () {
     Route::post('tabungan/mutasi/all', [TabunganController::class, 'getAllMutasi']);
     Route::post('tabungan/carirekening', [TabunganController::class, 'cariRekening']);
     Route::post('tabungan/mutasi/create', [TabunganController::class, 'insertMutasiTab']);
+    Route::post('tabungan/historytrans', [TabunganController::class, 'historyTrans']);
 });
-Route::post('tabungan/historytrans', [TabunganController::class, 'historyTrans']);

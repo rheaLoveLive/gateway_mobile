@@ -193,7 +193,7 @@ class TabunganController extends Controller
                 }
 
                 $rekening = DBF::table('mst_tab', 'dBaseDsn')
-                    ->select(['NAMA', 'NO_REK'])
+                    ->select('NAMA', 'NO_REK')
                     ->where('no_rek', '=', $data['norek'])
                     ->get();
 
@@ -272,21 +272,21 @@ class TabunganController extends Controller
 
                 // Mengambil data saldo pengirim dan tujuan
                 $recPengirim = DBF::table('TRN_TAB', 'dBaseDsn')
-                    ->select([
+                    ->select(
                         "SUM(IIF(D_K = 'K', JUMLAH, 0)) AS KREDIT",
                         "SUM(IIF(D_K = 'D', JUMLAH, 0)) AS DEBET",
                         "NO_REK"
-                    ])
+                    )
                     ->where('no_rek', '=', $data['norek'])
                     ->groupBy('no_rek')
                     ->first();
 
                 $recTujuan = DBF::table('TRN_TAB', 'dBaseDsn')
-                    ->select([
+                    ->select(
                         "SUM(IIF(D_K = 'K', JUMLAH, 0)) AS KREDIT",
                         "SUM(IIF(D_K = 'D', JUMLAH, 0)) AS DEBET",
                         "NO_REK"
-                    ])
+                    )
                     ->where('no_rek', '=', $data['norektujuan'])
                     ->groupBy('no_rek')
                     ->first();

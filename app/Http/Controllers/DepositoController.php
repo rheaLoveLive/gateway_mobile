@@ -15,9 +15,9 @@ class DepositoController extends Controller
         $datetime = date("YmdHis");
 
         try {
-            
+
             $data = DBF::table('dmasd', 'dBaseDsn')
-                ->select(['*'])->get();
+                ->get();
 
             if (!empty($data)) {
                 $response = [
@@ -71,7 +71,6 @@ class DepositoController extends Controller
                         "response_time" => $datetime,
                         "data" => array_values($rekening),
                     ]);
-
                 } else {
                     return response()->json([
                         'status' => self::$status['BAD_REQUEST'],
@@ -81,7 +80,6 @@ class DepositoController extends Controller
                     ], 400);
                 }
             }
-
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => self::$status['BAD_REQUEST'],
